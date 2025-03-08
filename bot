@@ -1,0 +1,40 @@
+import logging
+import requests
+import schedule
+import time
+from telegram import Bot
+
+TOKEN = "token_bot"
+CHAT_ID = "chave_link"  # Substitua pelo seu ID
+NEWS_API_KEY = "api"
+
+bot = Bot(token=TOKEN)
+
+def get_coffee_news():
+    url = f"https://newsapi.org/v2/everything?q=café OR coffee&language=pt&sortBy=publishedAt&apiKey={NEWS_API_KEY}"
+    response = requests.get(url).json()
+    articles = response.get("articles", [])[:5]
+    
+    news_text = "☕ *Bom dia! Últimas notícias sobre café:*\n\n"
+    for article in articles:
+        news_text += f"🔹 *{article['title']}* - {article['source']['name']}\n{article['url']}\n\n"
+    
+    return news_text if articles else "Nenhuma notícia recente encontrada."
+
+def send_news():
+    try:
+        news = get_coffee_news()
+        bot.send_message(chat_id=CHAT_ID, text=news, parse_mode="Markdown")
+        print("Notícia enviada com sucesso!")
+    except Exception as e:
+        print(f"Erro ao enviar notícia: {e}")
+
+# Agendar envio diário às 08:00
+schedule.every().day.at("08:00").do(send_news)
+
+print("Bot está rodando e enviará notícias às 08:00 diariamente.")
+
+# Loop infinito para manter o agendador rodando
+while True:
+    schedule.run_pending()
+    time.sleep(60)  # Checa a cada minuto
