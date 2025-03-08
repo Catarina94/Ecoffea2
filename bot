@@ -3,6 +3,8 @@ import requests
 import schedule
 import time
 from telegram import Bot
+pip install -r requirements.txt
+
 
 TOKEN = "token_bot"
 CHAT_ID = "chave_link"  # Substitua pelo seu ID
